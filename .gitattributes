@@ -1,0 +1,10 @@
+# Set text files to use LF in the repository and convert to CRLF on Windows
+* text=auto
+
+# Force binary files to be treated as binary (no conversion)
+*.unity binary
+*.prefab binary
+*.fbx binary
+*.png binary
+*.jpg binary
+*.dll binary
