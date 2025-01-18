@@ -48,7 +48,11 @@ public class VelBasedController : MonoBehaviour
 
         // set linear velocity to moveDir * curSpeed;
         rb.linearVelocity = vertMove + (moveDir * curSpeed);
+
+        // lock angular velocity to 0;
+        rb.angularVelocity = new();
+
         //Debug.Log("rb linearvelocity: " + rb.linearVelocity + ", vertMove" + vertMove + ", moveDir: " + moveDir + ", curSpeed: " + curSpeed);
-        Debug.Log("angular velocity: " + rb.angularVelocity);
+
     }
 }
