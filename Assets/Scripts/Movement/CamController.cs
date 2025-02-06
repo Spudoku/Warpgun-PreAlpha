@@ -6,9 +6,12 @@ using UnityEngine;
 public class CamController : MonoBehaviour
 {
     public GameObject target;
-    public float sensitivity = 5000f;
+    public float sensitivity = 1f;
     public Texture2D crosshairTexture; // Your custom crosshair texture
     [SerializeField] Camera cam;
+
+    private float verticalRot = 0;
+    private float vertRotClamp = 90f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -24,12 +27,18 @@ public class CamController : MonoBehaviour
     void Update()
     {
         Vector2 mouseInput = new(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-        Debug.Log("Mouse Input: " + mouseInput + "(at time " + Time.time + ")");
 
-        // since mouseInput is tracking "change in mouse position",
-        // rotate transform around y axis and camera around x axis (I think)
-        target.transform.RotateAround(transform.position, UnityEngine.Vector3.up, sensitivity * mouseInput.x * Time.deltaTime);
-        cam.transform.RotateAround(cam.transform.position, cam.transform.right, sensitivity * -mouseInput.y * Time.deltaTime);
+        // copying from Unity in Action
+        // Vector2 delta = new((mouseInput.x * sensitivity) + target.transform.localEulerAngles.y, -mouseInput.y * sensitivity);
+        // target.transform.localEulerAngles = new(delta.y, delta.x, 0);
+        verticalRot -= mouseInput.y * sensitivity;
+        verticalRot = Mathf.Clamp(verticalRot, -vertRotClamp, vertRotClamp);
+        float delta = mouseInput.x * sensitivity;
+        float horizRot = target.transform.localEulerAngles.y + delta;
+
+        //target.transform.localEulerAngles = new(verticalRot, horizRot, 0);
+        target.transform.localEulerAngles = new(0, horizRot, 0);
+        cam.transform.localEulerAngles = new(verticalRot, 0, 0);
     }
 
     void OnGUI()

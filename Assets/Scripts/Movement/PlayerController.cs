@@ -8,6 +8,10 @@ public class PlayerController : MonoBehaviour
     public float speed = 5f;
     public float gravityScale = 0.5f;
 
+    public float jumpStrength = 10f;
+
+    private Vector3 vel;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -18,7 +22,24 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // general movement
-        Vector3 movement = new(Input.GetAxis("Horizontal"), Physics.gravity.y * gravityScale, Input.GetAxis("Vertical"));
-        cc.Move(speed * Time.deltaTime * movement);
+        Vector3 movement = new(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        // gravity!
+        if (cc.isGrounded)
+        {
+            Debug.Log("Grounded!");
+            vel.y = -2f;
+            if (Input.GetButtonDown("Jump"))
+            {
+                Debug.Log("Attempting jump!");
+                vel.y = jumpStrength;
+            }
+
+        }
+        else
+        {
+            vel.y += gravityScale * Physics.gravity.y * Time.deltaTime;
+        }
+
+        cc.Move((movement * speed + vel) * Time.deltaTime);
     }
 }
