@@ -1,9 +1,12 @@
+
 using UnityEngine;
 
 
 // control a transform's rotation (with Camera attached) from first person
 public class CamController : MonoBehaviour
 {
+    public GameObject target;
+    public float sensitivity = 5000f;
     public Texture2D crosshairTexture; // Your custom crosshair texture
     [SerializeField] Camera cam;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -25,7 +28,8 @@ public class CamController : MonoBehaviour
 
         // since mouseInput is tracking "change in mouse position",
         // rotate transform around y axis and camera around x axis (I think)
-
+        target.transform.RotateAround(transform.position, UnityEngine.Vector3.up, sensitivity * mouseInput.x * Time.deltaTime);
+        cam.transform.RotateAround(cam.transform.position, cam.transform.right, sensitivity * -mouseInput.y * Time.deltaTime);
     }
 
     void OnGUI()
@@ -35,8 +39,6 @@ public class CamController : MonoBehaviour
         // Calculate the screen center position
 
         Vector2 screenCenter = new Vector2(Screen.width / 2, Screen.height / 2);
-
-
 
         // Draw the crosshair at the screen center
 
