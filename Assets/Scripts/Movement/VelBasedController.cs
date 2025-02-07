@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 // "VelBased" means that movement is controlled by velocity.
@@ -6,12 +7,17 @@ public class VelBasedController : MonoBehaviour
 {
     Rigidbody rb;
     [SerializeField] float maxSpeed = 10f;               // normalize movement to this speed!
+    [SerializeField] float airSpeed = 2f;
     [SerializeField] float acceleration = 8f;           // acceleration in units/second/second
 
     [SerializeField] float deecelleration = 8f;         // negative acceleration in units/second/second
 
+    [SerializeField] float jumpStrength = 10f;
+
     float curSpeed = 0f;                                // magnitude of current movement
     Vector3 moveDir;
+
+    [SerializeField] private bool grounded;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -19,6 +25,7 @@ public class VelBasedController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         moveDir = new();
+        grounded = false;
     }
 
     // Update is called once per frame
@@ -32,18 +39,43 @@ public class VelBasedController : MonoBehaviour
         if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
         {
 
-            moveDir = (transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal")).normalized;
+            //moveDir = (transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal")).normalized;
+            moveDir += transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal");
+            moveDir = moveDir.normalized;
+            Debug.Log("MoveDir: " + moveDir);
             curSpeed += acceleration * Time.deltaTime;
             // limit curSpeed
-            if (curSpeed > maxSpeed) curSpeed = maxSpeed;
+
         }
         else
         {
             curSpeed -= deecelleration * Time.deltaTime;
         }
+
+
+        Debug.Log("Vertical velocity: " + vertMove);
+        grounded = false;
+        if (Mathf.Abs(vertMove.y) <= 0.1f)
+        {
+            grounded = true;
+            if (curSpeed > maxSpeed) curSpeed = maxSpeed;
+        }
+        else
+        {
+            if (curSpeed > airSpeed) curSpeed = airSpeed;
+        }
+
+        if (grounded && Input.GetButtonDown("Jump"))
+        {
+            Debug.Log("Attempting jump!");
+            vertMove.y += jumpStrength;
+        }
+
         //Debug.Log("curSpeed: " + curSpeed);
         // speed cannot go below 0 (SPEED, not VELOCITY)
         if (curSpeed < 0f) curSpeed = 0f;
+
+
 
 
         // set linear velocity to moveDir * curSpeed;
