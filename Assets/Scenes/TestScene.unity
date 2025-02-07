@@ -128,7 +128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 275152528}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Obstacles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -655,7 +655,7 @@ GameObject:
   - component: {fileID: 1363616188}
   - component: {fileID: 1363616187}
   - component: {fileID: 1363616186}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Obstacle (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -763,7 +763,7 @@ GameObject:
   - component: {fileID: 1482999607}
   - component: {fileID: 1482999606}
   - component: {fileID: 1482999605}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Obstacle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1137,6 +1137,7 @@ GameObject:
   - component: {fileID: 1624839537}
   - component: {fileID: 1624839542}
   - component: {fileID: 1624839543}
+  - component: {fileID: 1624839544}
   m_Layer: 0
   m_Name: PlayerVelBased
   m_TagString: Untagged
@@ -1276,10 +1277,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3507da6de84f2cb4787eecda97e7918a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  groundChecker: {fileID: 1624839544}
   maxSpeed: 10
+  airSpeed: 2
   acceleration: 12
   deecelleration: 20
+  airDecelleration: 8
   jumpStrength: 10
+  groundCheckDist: 0.1
+  terrainLayer:
+    serializedVersion: 2
+    m_Bits: 8
   grounded: 0
 --- !u!114 &1624839543
 MonoBehaviour:
@@ -1297,6 +1305,27 @@ MonoBehaviour:
   sensitivity: 1
   crosshairTexture: {fileID: 2800000, guid: 2b1986ffad59f434caf5286366fb9866, type: 3}
   cam: {fileID: 0}
+--- !u!65 &1624839544
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1624839536}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.5, y: 0.25, z: 0.5}
+  m_Center: {x: 0, y: -1, z: 0}
 --- !u!1 &2060158517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1309,7 +1338,7 @@ GameObject:
   - component: {fileID: 2060158521}
   - component: {fileID: 2060158520}
   - component: {fileID: 2060158519}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Obstacle (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
