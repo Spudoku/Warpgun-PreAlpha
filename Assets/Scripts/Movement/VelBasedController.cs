@@ -55,7 +55,6 @@ public class VelBasedController : MonoBehaviour
             curDamping = groundDamping;
             if (Input.GetButtonDown("Jump"))
             {
-                Debug.Log("Jumping!");
                 vertMove.y += jumpStrength;
             }
         }
@@ -82,7 +81,6 @@ public class VelBasedController : MonoBehaviour
         // manual control of rigidbody velocity
         rb.linearVelocity = Vector3.Lerp((moveDir * curSpeed) + vertMove, Vector3.zero, curDamping * Time.deltaTime);
 
-        //Debug.Log("Velocity: " + rb.linearVelocity + ", Speed: " + rb.linearVelocity.magnitude + ", Input: (" + Input.GetAxis("Vertical") + ", " + Input.GetAxis("Horizontal") + ")");
 
     }
 
@@ -93,7 +91,6 @@ public class VelBasedController : MonoBehaviour
         if (other.gameObject.layer == targetLayer)
         {
             grounded = true;
-
         }
     }
 
@@ -103,7 +100,6 @@ public class VelBasedController : MonoBehaviour
         if (other.gameObject.layer == targetLayer)
         {
             grounded = false;
-
         }
     }
 
