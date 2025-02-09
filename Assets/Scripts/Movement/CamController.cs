@@ -8,7 +8,7 @@ public class CamController : MonoBehaviour
     public GameObject target;
     public float sensitivity = 1f;
     public Texture2D crosshairTexture; // Your custom crosshair texture
-    [SerializeField] Camera cam;
+    public Camera cam;
 
     private float verticalRot = 0;
     private float vertRotClamp = 90f;
