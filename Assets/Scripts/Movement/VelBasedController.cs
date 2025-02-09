@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.XR.WSA;
 [RequireComponent(typeof(Rigidbody))]
 // "VelBased" means that movement is controlled by velocity.
@@ -13,18 +14,26 @@ public class VelBasedController : MonoBehaviour
     [SerializeField] float airSpeed = 2f;
     [SerializeField] float acceleration = 8f;           // acceleration in units/second/second
 
-    [SerializeField] float deecelleration = 8f;         // negative acceleration in units/second/second
-    [SerializeField] float airDecelleration = 8f;
+    private float overallMaxSpeed;                      // the overall highest speed allowed for the rb
+
 
     [SerializeField] float jumpStrength = 10f;
 
     float curSpeed = 0f;                                // magnitude of current movement
     Vector3 moveDir;
-    [SerializeField] private float groundCheckDist = 0.1f;
+    //[SerializeField] private float groundCheckDist = 0.1f;
     public LayerMask terrainLayer;
     [SerializeField] private bool grounded;
 
-    private float halfHeight;
+    // rigidbody damping!
+    [SerializeField] private float moveDamping = 0f; // damping that occurs while taking move input
+    [SerializeField] private float groundDamping = 0.9f; // drag that occurs while not taking move input and grounded
+    [SerializeField] private float airDamping = 0.8f; // drag that occurs while not taking move input and airborne
+
+    private float curDamping;
+
+    Vector3 vertMove;
+
 
     void Start()
     {
@@ -32,72 +41,48 @@ public class VelBasedController : MonoBehaviour
         moveDir = new();
         grounded = false;
         CapsuleCollider capsuleCollider = GetComponent<CapsuleCollider>();
-        halfHeight = capsuleCollider.height / 2f;
+
+        overallMaxSpeed = Mathf.Max(maxSpeed, airSpeed);
     }
 
     // Update is called once per frame
     void Update()
     {
-        // calculate speed;
-        // take forward/backward input first
-        // begin building moveDir vector
-
-        Vector3 vertMove = new(0, rb.linearVelocity.y, 0);                              // take gravity into account for later
-        //Debug.Log("Vertical velocity: " + vertMove);
-        //grounded = Physics.Raycast(transform.position + new Vector3(0, -halfHeight, 0), Vector3.down, groundCheckDist, terrainLayer);
-        Debug.DrawRay(transform.position + new Vector3(0, -halfHeight, 0), Vector3.down, Color.red, terrainLayer);
-        if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
+        vertMove = new(0, rb.linearVelocity.y, 0);
+        // adjust damping
+        if (grounded)
         {
-
-            //moveDir = (transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal")).normalized;
-            moveDir += transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal");
-            moveDir = moveDir.normalized;
-            Debug.Log("MoveDir: " + moveDir);
-            curSpeed += acceleration * Time.deltaTime;
-            // decellerate
-            if (grounded)
+            curDamping = groundDamping;
+            if (Input.GetButtonDown("Jump"))
             {
-                // limiting ground speed
-                if (curSpeed > maxSpeed)
-                {
-                    curSpeed = Mathf.Max(maxSpeed, curSpeed -= deecelleration * Time.deltaTime);
-                }
-            }
-            else
-            {
-                // limiting airspeed
-                if (curSpeed > airSpeed)
-                {
-                    curSpeed = Mathf.Max(airSpeed, curSpeed -= airDecelleration * Time.deltaTime);
-                }
+                Debug.Log("Jumping!");
+                vertMove.y += jumpStrength;
             }
         }
         else
         {
-            curSpeed -= deecelleration * Time.deltaTime;
+            curDamping = airDamping;
+            vertMove.y += Physics.gravity.y * Time.deltaTime;
         }
 
-        // speed cannot go below 0 (SPEED, not VELOCITY)
-        if (curSpeed < 0f) curSpeed = 0f;
 
-        if (grounded && Input.GetButtonDown("Jump"))
+        moveDir = (transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal")).normalized;
+        if (Input.GetAxis("Vertical") > 0f || Input.GetAxis("Horizontal") > 0f)
         {
-            Debug.Log("Attempting jump!");
-            vertMove.y += jumpStrength;
+            curDamping = moveDamping;
+            curSpeed += acceleration * Time.deltaTime;
         }
 
+        // limit speed
+        if (curSpeed > overallMaxSpeed)
+        {
+            curSpeed = overallMaxSpeed;
+        }
 
+        // manual control of rigidbody velocity
+        rb.linearVelocity = Vector3.Lerp((moveDir * curSpeed) + vertMove, Vector3.zero, curDamping * Time.deltaTime);
 
-
-
-
-        // set linear velocity to moveDir * curSpeed;
-        rb.linearVelocity = vertMove + (moveDir * curSpeed);
-
-        // lock angular velocity to 0;
-        rb.angularVelocity = new();
-
-        //Debug.Log("rb linearvelocity: " + rb.linearVelocity + ", vertMove" + vertMove + ", moveDir: " + moveDir + ", curSpeed: " + curSpeed);
+        //Debug.Log("Velocity: " + rb.linearVelocity + ", Speed: " + rb.linearVelocity.magnitude + ", Input: (" + Input.GetAxis("Vertical") + ", " + Input.GetAxis("Horizontal") + ")");
 
     }
 
@@ -121,5 +106,12 @@ public class VelBasedController : MonoBehaviour
 
         }
     }
+
+    // Debugging GUI
+    void OnGUI()
+    {
+        GUI.Label(new Rect(10, 10, 300, 20), $"Velocity: {rb.linearVelocity}");
+    }
+
 }
 
